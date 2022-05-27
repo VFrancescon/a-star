@@ -9,6 +9,7 @@
 #include <vector>
 #include <functional>
 #include <set>
+#include <opencv2/core.hpp>
 
 namespace AStar
 {
@@ -17,11 +18,15 @@ namespace AStar
         int x, y;
 
         bool operator == (const Vec2i& coordinates_);
+        void operator=(cv::Point Point);
+        cv::Point toCvPoint();
     };
 
     using uint = unsigned int;
     using HeuristicFunction = std::function<uint(Vec2i, Vec2i)>;
     using CoordinateList = std::vector<Vec2i>;
+
+    std::vector<cv::Point> Vec2iToCvPointList(CoordinateList List);
 
     struct Node
     {

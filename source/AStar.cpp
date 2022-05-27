@@ -1,6 +1,7 @@
 #include "AStar.hpp"
 #include <algorithm>
 #include <math.h>
+#include <iostream>
 
 using namespace std::placeholders;
 
@@ -13,6 +14,31 @@ AStar::Vec2i operator + (const AStar::Vec2i& left_, const AStar::Vec2i& right_)
 {
     return{ left_.x + right_.x, left_.y + right_.y };
 }
+
+cv::Point AStar::Vec2i::toCvPoint(){
+    cv::Point point;
+    point.x = this->x;
+    point.y = this->y;
+    return point;
+}
+
+void AStar::Vec2i::operator=(cv::Point Point){
+    // std::cout << "equalsOP, Point: " << Point.x << " " << Point.y << "\n";
+    this->x = Point.x;
+    this->y = Point.y;
+    // std::cout << "equalsOP, this: " << this->x << " " << this->y << "\n";
+    return;
+}
+
+std::vector<cv::Point> AStar::Vec2iToCvPointList(AStar::CoordinateList List){
+    std::vector<cv::Point> cvPointArr(List.size());
+    for(int i = 0; i < List.size(); i++){
+        cvPointArr[i] = List[i].toCvPoint();
+    }
+    return cvPointArr;
+    // std::cout << "Hello world";
+}
+
 
 AStar::Node::Node(Vec2i coordinates_, Node *parent_)
 {
