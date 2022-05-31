@@ -23,10 +23,8 @@ cv::Point AStar::Vec2i::toCvPoint(){
 }
 
 void AStar::Vec2i::operator=(cv::Point Point){
-    // std::cout << "equalsOP, Point: " << Point.x << " " << Point.y << "\n";
     this->x = Point.x;
     this->y = Point.y;
-    // std::cout << "equalsOP, this: " << this->x << " " << this->y << "\n";
     return;
 }
 
@@ -37,7 +35,6 @@ std::vector<cv::Point> AStar::Vec2iToCvPointList(AStar::CoordinateList List){
         cvPointArr.push_back(i.toCvPoint());
     }
     return cvPointArr;
-    // std::cout << "Hello world";
 }
 
 
