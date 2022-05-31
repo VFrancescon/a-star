@@ -32,8 +32,9 @@ void AStar::Vec2i::operator=(cv::Point Point){
 
 std::vector<cv::Point> AStar::Vec2iToCvPointList(AStar::CoordinateList List){
     std::vector<cv::Point> cvPointArr;
-    for(int i = 0; i < List.size(); i++){
-        cvPointArr.push_back(List[i].toCvPoint());
+    
+    for(auto i: List){
+        cvPointArr.push_back(i.toCvPoint());
     }
     return cvPointArr;
     // std::cout << "Hello world";
