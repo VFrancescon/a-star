@@ -5,10 +5,7 @@
 #include <math.h>
 #define PI 3.14159265
 
-
-
-
-std::vector<std::string> decodePath(std::vector<cv::Point> path_, int pointInc);
+std::vector<std::string> decodePath(std::vector<cv::Point> path_, int pointIncr=2);
 
 int main()
 {
@@ -16,6 +13,8 @@ int main()
     int worldx = 10, worldy = 10;
     cv::Point CVworld(worldx, worldy);
     cv::Point tip(0,9);
+    // cv::Point tip(0,9);
+
     cv::Point goal(0,0);
     AStar::Vec2i world, src, dst;
     world = CVworld;
@@ -40,9 +39,11 @@ int main()
     }
 
     std::cout << "---------------------------------------\nCollisions: \n";
-    for(int j = 1; j < 4; j++){
+    //j controls the rows
+    for(int j = 1; j < 6; j++){
         AStar::Vec2i collision;
-        for(int i = 0; i < 3; i++){
+        //i controls the columns
+        for(int i = 0; i < 9; i++){
             collision.x = i;
             collision.y = j;
             generator.addCollision(collision);
@@ -68,7 +69,7 @@ int main()
     
 
     std::cout << "---------------------------------------\nDecoded path: \n";
-    std::vector<std::string> StrPath = decodePath(cvPath, 2);
+    std::vector<std::string> StrPath = decodePath(cvPath, 1);
     for(auto i: StrPath) std::cout << i << "\n";
     std::cout << "\n  | ";
     for( int i = 0; i < 10; i++) std::cout << i << " ";
@@ -86,15 +87,15 @@ int main()
     std::cout << "\n\n";
 }
 
-std::vector<std::string> decodePath(std::vector<cv::Point> path_, int pointInc){
+std::vector<std::string> decodePath(std::vector<cv::Point> path_, int pointIncr){
     std::vector<std::string> decodedInstructions;
     int dx, dy, angleD, dxdy;
     bool xPositive, yPositive;
     double angleF;
     for(int i = 0; i < path_.size(); i++){
-        if( i + pointInc >= path_.size()) break;
-        dx = path_[i+pointInc].x - path_[i].x;
-        dy = path_[i+pointInc].y - path_[i].y;
+        if( i + pointIncr >= path_.size()) break;
+        dx = path_[i+pointIncr].x - path_[i].x;
+        dy = path_[i+pointIncr].y - path_[i].y;
 
         // xPositive = (path_[i+1].x > path_[i].x) ? true : false;
         yPositive = (path_[i+1].y > path_[i].y) ? true : false;
@@ -107,8 +108,14 @@ std::vector<std::string> decodePath(std::vector<cv::Point> path_, int pointInc){
             dxdy = dx/dy;
             angleF = atan(dxdy) * 180 / PI;
             angleD = (int) angleF;
-            if(angleD > 0) decodedInstructions.push_back("Right");
-            else if ( angleD < 0 ) decodedInstructions.push_back("Left");
+
+            /**
+             * @todo find a less spaghetti-like implementation of this
+             */
+            if(angleD > 0 && yPositive) decodedInstructions.push_back("Right");
+            else if (angleD > 0 && !yPositive) decodedInstructions.push_back("Left");
+            else if ( angleD < 0 && yPositive) decodedInstructions.push_back("Left");
+            else if ( angleD < 0 && !yPositive) decodedInstructions.push_back("Right");
             else if ( angleD == 0 ){ 
                 if(yPositive) decodedInstructions.push_back("Down");
                 else decodedInstructions.push_back("Up");
