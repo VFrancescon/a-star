@@ -5,17 +5,58 @@
 #include <math.h>
 #define PI 3.14159265
 
-std::vector<std::string> decodePath(std::vector<cv::Point> path_, int pointIncr=2);
+// std::vector<std::string> decodePath(std::vector<cv::Point> path_, int pointIncr=2);
+
+namespace DXKDP_LIB{
+    enum class Direction{LD, LU, UP, DOWN, RU, RD, H};
+}
+
+std::ostream& operator << (std::ostream& os, const DXKDP_LIB::Direction& obj)
+{
+    using namespace DXKDP_LIB;
+
+   switch(obj){
+       case Direction::LD:
+            os << "Left Down";
+       break;
+       case Direction::LU:
+            os << "Left Up";
+       break;
+       case Direction::UP:
+            os << "Up";
+       break;
+       case Direction::DOWN:
+            os << "Down";
+       break;
+       case Direction::RU:
+            os << "Right Up";
+       break;
+       case Direction::RD:
+            os << "Right Down";
+       break;
+       case Direction::H:
+            os << "Horizontal";
+       break;
+       default:
+            os << "Undefined";
+       break;
+   }
+   
+   return os;
+}
+
+// std::vector<std::string> decodePath(std::vector<cv::Point> path_, int pointIncr=2);
+std::vector<DXKDP_LIB::Direction> decodePath(std::vector<cv::Point> path_, int pointIncr=2);
 
 int main()
 {
     
     int worldx = 10, worldy = 10;
     cv::Point CVworld(worldx, worldy);
-    cv::Point tip(0,9);
+    cv::Point tip(0,0);
     // cv::Point tip(0,9);
 
-    cv::Point goal(0,0);
+    cv::Point goal(0,9);
     AStar::Vec2i world, src, dst;
     world = CVworld;
     src = tip;
@@ -38,7 +79,7 @@ int main()
         row.clear();
     }
 
-    std::cout << "---------------------------------------\nCollisions: \n";
+    // std::cout << "---------------------------------------\nCollisions: \n";
     //j controls the rows
     for(int j = 1; j < 6; j++){
         AStar::Vec2i collision;
@@ -47,7 +88,7 @@ int main()
             collision.x = i;
             collision.y = j;
             generator.addCollision(collision);
-            std::cout << "Collision at: " << collision.x << " , " << collision.y << "\n";
+            // std::cout << "Collision at: " << collision.x << " , " << collision.y << "\n";
             grid[j][i] = 1;
         }
     }
@@ -55,9 +96,9 @@ int main()
     std::cout << "---------------------------------------\nPath found: \n";
     auto path = generator.findPath(src, dst);
     std::reverse(path.begin(), path.end());
-    for(auto i: path){
-        std::cout << i.x << " , " << i.y << "\n";
-    }
+    // for(auto i: path){
+    //     std::cout << i.x << " , " << i.y << "\n";
+    // }
     
     std::vector<cv::Point> cvPath = AStar::Vec2iToCvPointList(path);
     
@@ -69,7 +110,7 @@ int main()
     
 
     std::cout << "---------------------------------------\nDecoded path: \n";
-    std::vector<std::string> StrPath = decodePath(cvPath, 1);
+    std::vector<DXKDP_LIB::Direction> StrPath = decodePath(cvPath, 1);
     for(auto i: StrPath) std::cout << i << "\n";
     std::cout << "\n  | ";
     for( int i = 0; i < 10; i++) std::cout << i << " ";
@@ -87,8 +128,9 @@ int main()
     std::cout << "\n\n";
 }
 
-std::vector<std::string> decodePath(std::vector<cv::Point> path_, int pointIncr){
-    std::vector<std::string> decodedInstructions;
+std::vector<DXKDP_LIB::Direction> decodePath(std::vector<cv::Point> path_, int pointIncr){
+    using namespace DXKDP_LIB;
+    std::vector<Direction> decodedInstructions;
     int dx, dy, angleD, dxdy;
     bool xPositive, yPositive;
     double angleF;
@@ -102,7 +144,7 @@ std::vector<std::string> decodePath(std::vector<cv::Point> path_, int pointIncr)
         
         if(dy == 0) {
             angleD = 90;
-            decodedInstructions.push_back("Horizontal");
+            decodedInstructions.push_back(Direction::H);
         }
         else {
             dxdy = dx/dy;
@@ -112,13 +154,13 @@ std::vector<std::string> decodePath(std::vector<cv::Point> path_, int pointIncr)
             /**
              * @todo find a less spaghetti-like implementation of this
              */
-            if(angleD > 0 && yPositive) decodedInstructions.push_back("Right");
-            else if (angleD > 0 && !yPositive) decodedInstructions.push_back("Left");
-            else if ( angleD < 0 && yPositive) decodedInstructions.push_back("Left");
-            else if ( angleD < 0 && !yPositive) decodedInstructions.push_back("Right");
+            if(angleD > 0 && yPositive) decodedInstructions.push_back(Direction::RD);
+            else if (angleD > 0 && !yPositive) decodedInstructions.push_back(Direction::LU);
+            else if ( angleD < 0 && yPositive) decodedInstructions.push_back(Direction::LD);
+            else if ( angleD < 0 && !yPositive) decodedInstructions.push_back(Direction::RU);
             else if ( angleD == 0 ){ 
-                if(yPositive) decodedInstructions.push_back("Down");
-                else decodedInstructions.push_back("Up");
+                if(yPositive) decodedInstructions.push_back(Direction::DOWN);
+                else decodedInstructions.push_back(Direction::UP);
             }   
             std::cout << "tan(" << dx << " , " <<  dy << ") = " <<  angleD << "\n";
         }
