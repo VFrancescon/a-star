@@ -8,7 +8,7 @@
 // std::vector<std::string> decodePath(std::vector<cv::Point> path_, int pointIncr=2);
 
 namespace DXKDP_LIB{
-    enum class Direction{LeftDown, LeftUp, Up, Down, RightUp, RightDown, Horizontal};
+    enum class Direction{LeftDown, LeftUp, Up, Down, RightUp, RightDown, RightH, LeftH};
 }
 
 std::ostream& operator << (std::ostream& os, const DXKDP_LIB::Direction& obj)
@@ -34,8 +34,11 @@ std::ostream& operator << (std::ostream& os, const DXKDP_LIB::Direction& obj)
        case Direction::RightDown:
             os << "Right Down";
        break;
-       case Direction::Horizontal:
-            os << "Horizontal";
+       case Direction::RightH:
+            os << "RightH";
+       break;
+       case Direction::LeftH:
+            os << "LeftH";
        break;
        default:
             os << "Undefined";
@@ -45,7 +48,6 @@ std::ostream& operator << (std::ostream& os, const DXKDP_LIB::Direction& obj)
    return os;
 }
 
-// std::vector<std::string> decodePath(std::vector<cv::Point> path_, int pointIncr=2);
 std::vector<DXKDP_LIB::Direction> decodePath(std::vector<cv::Point> path_, int pointIncr=2);
 
 int main()
@@ -157,12 +159,14 @@ std::vector<DXKDP_LIB::Direction> decodePath(std::vector<cv::Point> path_, int p
         dx = path_[i+pointIncr].x - path_[i].x;
         dy = path_[i+pointIncr].y - path_[i].y;
 
-        // xPositive = (path_[i+1].x > path_[i].x) ? true : false;
+        xPositive = (path_[i+1].x > path_[i].x) ? true : false;
         yPositive = (path_[i+1].y > path_[i].y) ? true : false;
         
         if(dy == 0) {
             angleD = 90;
-            decodedInstructions.push_back(Direction::Horizontal);
+            
+            if(xPositive) decodedInstructions.push_back(Direction::RightH);   
+            else decodedInstructions.push_back(Direction::LeftH);
         }
         else {
             dxdy = dx/dy;
@@ -176,10 +180,9 @@ std::vector<DXKDP_LIB::Direction> decodePath(std::vector<cv::Point> path_, int p
             else if (angleD > 0 && !yPositive) decodedInstructions.push_back(Direction::LeftUp);
             else if ( angleD < 0 && yPositive) decodedInstructions.push_back(Direction::LeftDown);
             else if ( angleD < 0 && !yPositive) decodedInstructions.push_back(Direction::RightUp);
-            else if ( angleD == 0 ){ 
-                if(yPositive) decodedInstructions.push_back(Direction::Down);
-                else decodedInstructions.push_back(Direction::Up);
-            }   
+            else if ( angleD == 0 && yPositive) decodedInstructions.push_back(Direction::Down);
+            else decodedInstructions.push_back(Direction::Up);
+  
             // std::cout << "tan(" << dx << " , " <<  dy << ") = " <<  angleD << "\n";
         }
         
